@@ -1,0 +1,52 @@
+.zagolovok_curse {
+    text-align: center;
+    color: green;
+}
+
+.div_form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form_input_code{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.h2_status{
+    text-align: center;
+    color: darkblue;
+}
+
+.div_button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.div_statusP{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.div_gif{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gif{
+    width: 50%;
+    height: 40%;
+    margin-left: 25%;
+}
+
+.div_gif2{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
