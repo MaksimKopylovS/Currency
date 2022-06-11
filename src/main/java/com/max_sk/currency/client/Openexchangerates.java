@@ -9,10 +9,10 @@ public interface Openexchangerates {
 
     /*Конечная точка получения Json курса валюты за сегодня*/
     @GetMapping("${CURRENCY_TODAY}" + "${APP_ID}")
-    public String getLatest();
+    String getLatest();
 
     /*Конечная точка получения Json курса валюты за вчера*/
     @GetMapping("${CURRENCY_OF_THE_EVENING}" + "${APP_ID}")
-    public String currencyForYesterday();
+    String currencyForYesterday();
 
 }

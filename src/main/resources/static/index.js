@@ -21,9 +21,9 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     function fillTable(codeCurrency) {
         $http.get('http://localhost:8080/api/currency/' + codeCurrency)
             .then(function (response) {
-                console.log(response.data.url);
                 $scope.code = response.data
                 document.getElementById("image").src = response.data.url;
+                $scope.status = "Курс " + codeCurrency + " = " + response.data.money;
             });
     }
 });

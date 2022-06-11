@@ -8,7 +8,7 @@ import java.util.*;
 /*Класс ДТО для работы с JSON списком текущей валюты из openexchangerate*/
 @Data
 @JsonAutoDetect
-public class LatestDto {
+public class CurrencyDto {
 
     public String disclaimer;
     public String license;
@@ -16,7 +16,7 @@ public class LatestDto {
     public String base;
     public Map<String, Double> rates;
 
-    public LatestDto(@JsonProperty(value = "disclaimer") String disclaimer,
+    public CurrencyDto(@JsonProperty(value = "disclaimer") String disclaimer,
                      @JsonProperty(value = "license") String license,
                      @JsonProperty(value = "timestamp") String timestamp,
                      @JsonProperty(value = "base") String base,

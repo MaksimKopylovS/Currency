@@ -1,18 +1,19 @@
 package com.max_sk.currency.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.max_sk.currency.client.DevelopersGiphy;
 import com.max_sk.currency.client.Openexchangerates;
 import com.max_sk.currency.configurator.ConfigurationUrl;
 import com.max_sk.currency.dto.ErrorDto;
 import com.max_sk.currency.dto.GiphyUrlDto;
-import com.max_sk.currency.dto.LatestDto;
+import com.max_sk.currency.dto.CurrencyDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-/*Серверная часть обработки запросов связанных с фалютой*/
+/*Серверная часть обработки запросов связанных с валютой*/
 @Service
 @AllArgsConstructor
 public class CurrencyService {
@@ -23,51 +24,68 @@ public class CurrencyService {
 
     /*Метод сравнивания значения валюты за сегодня с вчерашней */
     public GiphyUrlDto getCurrency(String codeCurrency) throws IOException {
+
         /*Редактируем конфигурационный файл для установки вчерашний даты*/
         configurationUrl.editConf();
 
-        /*Проверяем, если в списке JSON валюты, нет подходящего нам значение отправляем URL с ошибкой*/
-        if (new ObjectMapper()
-                .readValue(openexchangerates.getLatest(), LatestDto.class)
-                .getRates()
-                .get(codeCurrency) == null) {
-            return new GiphyUrlDto(ErrorDto.getERROR());
+        /*Создаём DTO курса валюты за текущий день*/
+        CurrencyDto latestCurrency = getLatestCurrency();
+
+        /*Создаём DTO курса валюты за прошлый день*/
+        CurrencyDto currencyForYesterday = getCurrencyForYesterday();
+
+        /*Проверяем, если в списке JSON валюты, нет подходящего кода валюты отправляем URL с ошибкой*/
+        if (latestCurrency.getRates().get(codeCurrency) == null || currencyForYesterday.getRates().get(codeCurrency) == null) {
+            return new GiphyUrlDto(ErrorDto.getERROR(), 0.0);
         }
 
-        return
-                /*Вытаскиваем из Json искомый код валюты за сегодня */
-                new ObjectMapper()
-                        .readValue(openexchangerates.getLatest(), LatestDto.class)
-                        .getRates()
-                        .get(codeCurrency)
-                        <
-                        /*Вытаскиваем из Json искомый код валюты за вчера и сравниваем его с текущим */
-                        new ObjectMapper()
-                                .readValue(openexchangerates.currencyForYesterday(), LatestDto.class)
-                                .getRates()
-                                .get(codeCurrency)
-                        ?
-                        /*Если валюта за сегодня уменьшилась значит курс поднялся возвращаем Giph с RICH */
-                        new GiphyUrlDto(
-                                /*Ищем в Json с помощью JACKSON необходимую нам ссылку*/
-                                new ObjectMapper()
-                                        .readTree(developersGiphy.getRandomRich())
-                                        .get("data")
-                                        .get("images")
-                                        .get("original")
-                                        .get("url")
-                                        .asText())
-                        :
-                        /*Если валюта за сегодня увеличилась значит курс опустился возвращаем Giph с BROKE */
-                        new GiphyUrlDto(
-                                /*Ищем в Json с помощью JACKSON необходимую нам ссылку */
-                                new ObjectMapper()
-                                        .readTree(developersGiphy.getRandomBroke())
-                                        .get("data")
-                                        .get("images")
-                                        .get("original")
-                                        .get("url")
-                                        .asText()
-                        );
+        /*Создаём  GiphyUrlDto*/
+        GiphyUrlDto rich = getRichGiphyUrlDto();
+        rich.setMoney(currencyForYesterday.getRates().get(codeCurrency));
+
+        /*Создаём GiphyUrlDto*/
+        GiphyUrlDto broke = getBrokeGiphyUrl();
+        broke.setMoney(currencyForYesterday.getRates().get(codeCurrency));
+
+        System.out.println(rich.getMoney() + " " + broke.getMoney());
+
+        /* Сравниваем изменение курса и отправляем в контролер DTO */
+        return rich.getMoney() < broke.getMoney() ? rich : broke;
     }
+
+    /*Создаём DTO курса валюты за текущий день*/
+    public CurrencyDto getLatestCurrency() throws JsonProcessingException {
+        return new ObjectMapper().readValue(openexchangerates.getLatest(), CurrencyDto.class);
+    }
+
+    /*Создаём DTO курса валюты за прошлый день*/
+    public CurrencyDto getCurrencyForYesterday() throws JsonProcessingException {
+        return new ObjectMapper().readValue(openexchangerates.currencyForYesterday(), CurrencyDto.class);
+    }
+
+    /*Ищем в Json с помощью JACKSON ссылку на GIF RICH и создаём GiphyUrlDto*/
+    public GiphyUrlDto getRichGiphyUrlDto() throws JsonProcessingException {
+        return new GiphyUrlDto(
+                new ObjectMapper()
+                        .readTree(developersGiphy.getRandomRich())
+                        .get("data")
+                        .get("images")
+                        .get("original")
+                        .get("url")
+                        .asText());
+    }
+
+    /*Ищем в Json с помощью JACKSON ссылку на GIF BROKE и создаём GiphyUrlDto*/
+    public GiphyUrlDto getBrokeGiphyUrl() throws JsonProcessingException {
+        return new GiphyUrlDto(
+                new ObjectMapper()
+                        .readTree(developersGiphy.getRandomBroke())
+                        .get("data")
+                        .get("images")
+                        .get("original")
+                        .get("url")
+                        .asText());
+    }
+
+
 }
