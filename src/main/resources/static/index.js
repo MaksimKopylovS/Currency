@@ -14,7 +14,7 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
         if (re.test(codeCurrency)) {
             $scope.status = "Code правильный";
             fillTable(codeCurrency)
-        } else $scope.status = "Ведите 3 заглавные буквы EN";
+        } else $scope.status = "Введите 3 заглавные буквы EN";
 
     }
 
