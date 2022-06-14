@@ -7,14 +7,14 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
         var re = /[A-Z]{3}/;
 
         if (isEmpty(codeCurrency)) {
-            $scope.status = "Ведите 3 заглавные буквы EN";
+            $scope.status = "Введите 3 заглавные буквы EN";
             return;
         }
 
         if (re.test(codeCurrency)) {
             $scope.status = "Code правильный";
             fillTable(codeCurrency)
-        } else $scope.status = "Ведите 3 заглавные буквы EN";
+        } else $scope.status = "Введите 3 заглавные буквы EN";
 
     }
 
